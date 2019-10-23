@@ -24,7 +24,7 @@ def build_kmer_dict(fasta_q,k_mer): # finalement il renvoie ça que pour la dern
             it_tmp = cut_kmer(sequence,k_mer) #renvoie un itér des seq de taille k_mer
             list_tmp_kmer = list(it_tmp)
             for sous_k_mer in list_tmp_kmer:
-  
+
                 if sous_k_mer in dic:
                     dic[sous_k_mer] += 1
                 else:
@@ -39,12 +39,11 @@ def build_graph(dic_kmer) :
 
     Grph = nx.DiGraph()
 
-    for kmer, valeur in enumerate(dic_kmer.items()):
+    for kmer, valeur in dic_kmer.items():
 
         nd1 = kmer[:-1]
 
         nd2 = kmer[1:]
-
 
         Grph.add_edge(nd1 , nd2 , weight = valeur)
 
@@ -52,20 +51,20 @@ def build_graph(dic_kmer) :
 
 
 def get_starting_nodes(graph):
-    
+
     node_entry = []
 
     for node in graph.nodes:
 
         if len(list(graph.predecessors(node))) == 0:
 
-            nody_entry.append(node)
+            node_entry.append(node)
 
     return node_entry
 
 
 def get_sink_nodes(graph):
-  
+
     node_out = []
 
     for node in graph.nodes:
@@ -74,13 +73,12 @@ def get_sink_nodes(graph):
 
             node_out.append(node)
 
-    return sortis
+    return node_out
 
 
 
 def get_contigs(graph, entree, sortie):
-    """Retourne liste de tuple(contig, taille du contig)"""
-    
+
     paths = []
 
     for nd in entree:
@@ -115,13 +113,49 @@ def get_contigs(graph, entree, sortie):
 
 
 def fill(text, width=80):
-"""Split text with a line return to respect fasta format"""
+    """Split text with a line returnto respect fasta format"""
     return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
 
 
 def std(liste):
-    """Take list of values and return standard deviation"""
+    """ a function that takes a list of values and return its stdev"""
+
     res = statistics.stdev(liste)
     return res
 
 
+
+def path_average_weight(graph, path):
+
+    """ a function that take a graph and a path
+    and it returns the average weigth of a sub graohe"""
+
+    sous_graphe = graph.subgraph(path)
+
+    liste_w = []
+
+    for edge in sous_graphe.edges(data=True):
+        liste_w.append(edge[2]['weight'])
+
+    return statistics.mean(liste_w)
+
+
+def remove_paths(graph, liste_path, delete_entry_node, delete_sink_node):
+
+    """ Une fonction qui prend un graphe et une liste de chemin, delete_entry_node pour
+indiquer si les noeuds d’entrée seront supprimés et delete_sink_node pour indiquer si
+les noeuds de sortie seront supprimés et retourne un graphe nettoyé des chemins
+indésirables."""
+
+    graphe_tmp = graph
+
+    for i in range(len(liste_path)):
+
+        graphe_tmp.remove_nodes_from(liste_path[i][1:-1])
+
+        if delete_entry_node == True:
+            graphe_tmp.remove_node(liste_path[i][0]) #supprimer le noeud d entree
+        if delete_sink_node == True:
+            graphe_tmp.remove_node(liste_path[i][-1])#supprimer le noeud de sortie
+
+    return graphe_tmp
