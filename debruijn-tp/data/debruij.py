@@ -1,3 +1,8 @@
+import networkx as nx
+import random
+import statistics
+
+
 def read_fastq(fasta_q):
   with open(fasta_q, 'r') as f:
     for count, line in enumerate(f, start=1):
@@ -73,14 +78,14 @@ def get_sink_nodes(graph):
 
 
 
-def get_contigs(graph, entres, sortis):
+def get_contigs(graph, entree, sortie):
     """Retourne liste de tuple(contig, taille du contig)"""
     
     paths = []
 
-    for nd in entres:
+    for nd in entree:
 
-        for nd2 in sortis:
+        for nd2 in sortie:
 
             path = list(nx.all_simple_paths(graph, nd, nd2))
 
@@ -107,6 +112,16 @@ def get_contigs(graph, entres, sortis):
     return reslt
 
 
+
+
 def fill(text, width=80):
 """Split text with a line return to respect fasta format"""
     return os.linesep.join(text[i:i+width] for i in range(0, len(text), width))
+
+
+def std(liste):
+    """Take list of values and return standard deviation"""
+    res = statistics.stdev(liste)
+    return res
+
+
